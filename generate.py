@@ -60,7 +60,7 @@ def main(args):
             (GREENER, args.release + 3)):
         ver = str(ver)
         if ver not in requirements:
-            raise Exception('Missing requirements for version %d' % ver)
+            raise Exception('Missing requirements for version %s' % ver)
         checked_requirements.append((color, requirements[ver]))
 
     with open('distro_data.json') as fh:
