@@ -86,7 +86,7 @@ def main(args):
                 ver = req.get(name) or '0'
                 if not isinstance(distro_ver, list):
                     distro_ver = [distro_ver]
-                if any(Version(v) >= ver for v in distro_ver):
+                if any(Version(v) >= str(ver) for v in distro_ver):
                     compat[name] = color
 
         runtime_compat = [c for n, c in compat.items() if n != 'GCC']
