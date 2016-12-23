@@ -24,6 +24,7 @@ DISTROS = ('fedora', 'rhel', 'opensuse', 'debian', 'ubuntu')
 def format_date(text):
     if text is None:
         return '?'
+    text = '-'.join(text.split('-')[:2])
     try:
         d = datetime.strptime(text, '%Y-%m')
         return d.strftime('%b %Y')
