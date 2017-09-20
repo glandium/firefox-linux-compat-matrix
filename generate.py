@@ -24,6 +24,7 @@ DISTROS = ('fedora', 'rhel', 'opensuse', 'debian', 'ubuntu')
 def format_date(text):
     if text is None:
         return '?'
+    text = '-'.join(text.split('-')[:2])
     try:
         d = datetime.strptime(text, '%Y-%m')
         return d.strftime('%b %Y')
@@ -60,7 +61,7 @@ def main(args):
             (GREENER, args.release + 3)):
         ver = str(ver)
         if ver not in requirements:
-            raise Exception('Missing requirements for version %d' % ver)
+            raise Exception('Missing requirements for version %s' % ver)
         checked_requirements.append((color, requirements[ver]))
 
     with open('distro_data.json') as fh:
@@ -86,7 +87,7 @@ def main(args):
                 ver = req.get(name) or '0'
                 if not isinstance(distro_ver, list):
                     distro_ver = [distro_ver]
-                if any(Version(v) >= ver for v in distro_ver):
+                if any(Version(v) >= str(ver) for v in distro_ver):
                     compat[name] = color
 
         runtime_compat = [c for n, c in compat.items() if n != 'GCC']
