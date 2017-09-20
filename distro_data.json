@@ -326,7 +326,7 @@
     "openSUSE Leap 42.3": {
         "release": {
             "date": "2017-07",
-            "eol": "2019-012"
+            "eol": "2019-01"
         },
         "versions": {
             "GCC": [
