@@ -150,7 +150,7 @@
     "Fedora 22": {
         "release": {
             "date": "2015-05",
-            "eol": "2016-07-19"
+            "eol": "2016-07"
         },
         "versions": {
             "GCC": [
