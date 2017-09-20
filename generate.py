@@ -58,7 +58,7 @@ def main(args):
     for color, ver in (
             (YELLOW, args.esr),
             (GREEN, args.release),
-            (GREENER, args.release + 3)):
+            (GREENER, args.release + 2)):
         ver = str(ver)
         if ver not in requirements:
             raise Exception('Missing requirements for version %s' % ver)
