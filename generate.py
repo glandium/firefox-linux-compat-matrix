@@ -77,8 +77,8 @@ def main(args):
         print('<tr>')
 
         compat = OrderedDict(
-            (k, RED) for k in ('glibc', 'glib', 'gtk+2', 'gtk+3', 'pixman',
-                               'stdc++', 'GCC'))
+            (k, RED) for k in ('kernel', 'glibc', 'glib', 'gtk+2', 'gtk+3',
+                               'pixman', 'stdc++', 'GCC'))
 
         versions = data.get('versions', {})
         for color, req in checked_requirements:
