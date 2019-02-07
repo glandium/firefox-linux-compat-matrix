@@ -78,7 +78,7 @@ def main(args):
 
         compat = OrderedDict(
             (k, RED) for k in ('kernel', 'glibc', 'glib', 'gtk+2', 'gtk+3',
-                               'pixman', 'stdc++', 'GCC'))
+                               'pixman', 'stdc++', 'GCC', 'clang'))
 
         versions = data.get('versions', {})
         for color, req in checked_requirements:
@@ -90,7 +90,8 @@ def main(args):
                 if any(Version(v) >= str(ver) for v in distro_ver):
                     compat[name] = color
 
-        runtime_compat = [c for n, c in compat.items() if n != 'GCC']
+        runtime_compat = [c for n, c in compat.items()
+                          if n not in ('GCC', 'clang')]
         for color in (RED, YELLOW, GREEN, GREENER):
             if color in runtime_compat:
                 print_cell(distro, color)
