@@ -175,10 +175,10 @@ function refresh(scope, requirements, distro_data, sort_by=null) {
   matrix_body.replaceChildren();
 
   const columns = ((scope == "build") ? [
-    "glibc", "glib", "gtk+2", "gtk+3", "GCC", "clang", "python3"
+    "glibc", "glib", "gtk+2", "gtk+3", "drm", "GCC", "clang", "python3"
   ] : [
-    "kernel", "glibc", "glib", "gtk+2", "gtk+3", "stdc++"
-  ]).filter(name => requirements[name] || name == "kernel");
+    "kernel", "glibc", "glib", "gtk+2", "gtk+3", "drm", "stdc++"
+  ]).filter(name => requirements[name] || name == "kernel" || name == "drm");
 
   for (const [i, column] of ["Distribution", "Released", "EOL"].concat(columns).entries()) {
     const th = document.createElement("th");
