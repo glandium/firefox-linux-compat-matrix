@@ -40,11 +40,17 @@ table tbody th {
 table th, table td {
   padding: 6px 8px;
 }
+table tr:nth-child(odd) td.red, table tr:nth-child(odd) th.red {
+  background-color: #ffbbbb;
+}
 table tr td.red, table tr th.red {
   background-color: #ffcccc;
 }
-table tr td.green, table tr th.green {
+table tr:nth-child(odd) td.green, table tr:nth-child(odd) th.green {
   background-color: #99ff99;
+}
+table tr td.green, table tr th.green {
+  background-color: #aaffaa;
 }
 </style>
 <script>
