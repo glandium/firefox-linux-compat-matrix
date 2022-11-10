@@ -152,7 +152,7 @@ function refresh(scope, requirements, distro_data) {
   matrix_body.replaceChildren();
 
   const columns = ((scope == "build") ? [
-    "glibc", "glib", "gtk+2", "gtk+3", "pixman", "GCC", "clang", "python3"
+    "glibc", "glib", "gtk+2", "gtk+3", "GCC", "clang", "python3"
   ] : [
     "kernel", "glibc", "glib", "gtk+2", "gtk+3", "stdc++"
   ]).filter(name => requirements[name]);
