@@ -55,10 +55,15 @@ table tr td.green, table tr th.green {
 </style>
 <script>
 const DISTROS = ["fedora", "rhel", "opensuse", "suse", "debian", "ubuntu"];
+const NUMBER = /\d+/;
+
+function distro_base_name(name) {
+  return name.split(" ")[0].toLowerCase();
+}
 
 function distro_key(name) {
-  const base_name = name.split(" ")[0].toLowerCase();
-  return DISTROS.findIndex(n => n == base_name);
+  const base_name = distro_base_name(name);
+  return DISTROS.findIndex(n => n == base_name)
 }
 
 function cmp(a, b) {
@@ -70,6 +75,13 @@ function cmp(a, b) {
 function cmp_distros(a, b) {
   const kc = cmp(distro_key(a[0]), distro_key(b[0]));
   if (kc != 0) return kc;
+  // If we reached here, the distro base name is identical between both.
+  // Ignore version in the distro name for opensuse, because they made a mess
+  // going from 42 to 15.
+  if (distro_base_name(a[0]) != "opensuse") {
+    const kv = cmp(parseInt(a[0].match(NUMBER), 10), parseInt(b[0].match(NUMBER), 10));
+    if (kv != 0) return kv;
+  }
   const kd = cmp(parse_date(a[1]["release"]["date"]), parse_date(b[1]["release"]["date"]));
   if (kd != 0) return kd;
   return cmp(a[0], b[0]);
