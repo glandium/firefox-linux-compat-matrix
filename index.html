@@ -168,7 +168,7 @@ function parse_date(date) {
     return date;
   }
   const [y, m] = date.split("-").slice(0, 2);
-  return new Date(y, m);
+  return new Date(parseInt(y, 10), parseInt(m, 10) - 1);
 }
 
 function normalize_versions(v) {
