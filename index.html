@@ -161,7 +161,6 @@ function normalize_versions(v) {
 }
 
 function refresh(scope, requirements, distro_data, sort_by=null) {
-  console.log(sort_by);
   const now = Date.now();
   const last_month = new Date(now);
   last_month.setDate(0);
