@@ -28,6 +28,12 @@ table thead {
 table thead th {
   border-bottom: 2px solid #d4dde4;
 }
+table thead th:nth-child(n+4):hover {
+  background: #ffaa00;
+}
+table thead th.sorted {
+  background: #ff0000;
+}
 table tbody th {
   border-right: 2px solid #d4dde4;
 }
@@ -55,18 +61,20 @@ function cmp(a, b) {
   return 0;
 }
 
+function cmp_distros(a, b) {
+  const kc = cmp(distro_key(a[0]), distro_key(b[0]));
+  if (kc != 0) return kc;
+  const kd = cmp(parse_date(a[1]["release"]["date"]), parse_date(b[1]["release"]["date"]));
+  if (kd != 0) return kd;
+  return cmp(a[0], b[0]);
+}
+
 async function init() {
   const req_response = await fetch(new Request("requirements.json"));
   const dat_response = await fetch(new Request("distro_data.json"));
   const ver_response = await fetch(new Request("https://product-details.mozilla.org/1.0/firefox_versions.json"));
   const requirements = await req_response.json();
-  const distro_data = Object.entries(await dat_response.json()).sort((a, b) => {
-    const kc = cmp(distro_key(a[0]), distro_key(b[0]));
-    if (kc != 0) return kc;
-    const kd = cmp(parse_date(a[1]["release"]["date"]), parse_date(b[1]["release"]["date"]));
-    if (kd != 0) return kd;
-    return cmp(a[0], b[0]);
-  });
+  const distro_data = Object.entries(await dat_response.json()).sort(cmp_distros);
   const firefox_versions = await ver_response.json();
   const esr_version = parseInt(firefox_versions["FIREFOX_ESR"], 10);
   const release_version = parseInt(firefox_versions["LATEST_FIREFOX_VERSION"], 10);
@@ -141,7 +149,13 @@ function parse_date(date) {
   return new Date(y, m);
 }
 
-function refresh(scope, requirements, distro_data) {
+function normalize_versions(v) {
+  v = v || "N/A";
+  return (typeof v == "string") ? [v] : v;
+}
+
+function refresh(scope, requirements, distro_data, sort_by=null) {
+  console.log(sort_by);
   const now = Date.now();
   const last_month = new Date(now);
   last_month.setDate(0);
@@ -157,13 +171,37 @@ function refresh(scope, requirements, distro_data) {
     "kernel", "glibc", "glib", "gtk+2", "gtk+3", "stdc++"
   ]).filter(name => requirements[name]);
 
-  for (const column of ["Distribution", "Released", "EOL"].concat(columns)) {
+  for (const [i, column] of ["Distribution", "Released", "EOL"].concat(columns).entries()) {
     const th = document.createElement("th");
     th.textContent = column;
+    if (i > 2) {
+      if (column == sort_by) {
+        th.className = "sorted";
+        th.addEventListener("click", (event) => {
+          refresh(scope, requirements, distro_data);
+        });
+      } else {
+        th.addEventListener("click", (event) => {
+          refresh(scope, requirements, distro_data, column);
+        });
+      }
+    }
     matrix_head.appendChild(th);
   }
 
-  for (const [distro, data] of distro_data) {
+  let sorted_distro_data = distro_data;
+  if (sort_by) {
+    sorted_distro_data = Array.from(distro_data);
+    sorted_distro_data.sort((a, b) => {
+      const va = normalize_versions(a[1]["versions"][sort_by]).slice(-1)[0];
+      const vb = normalize_versions(b[1]["versions"][sort_by]).slice(-1)[0];
+      if (version_check(va, [vb])) return -1;
+      if (va != vb) return 1;
+      return cmp_distros(a, b);
+    });
+  }
+
+  for (const [distro, data] of sorted_distro_data) {
     const tr = document.createElement("tr");
     const th = document.createElement("th");
     th.textContent = distro;
@@ -191,7 +229,7 @@ function refresh(scope, requirements, distro_data) {
 
     for (const column of columns) {
       const td = document.createElement("td");
-      const info = ((v) => (typeof v == "string") ? [v] : v)(versions[column] || "N/A");
+      const info = normalize_versions(versions[column]);
       td.textContent = info.join(", ");
       const valid = version_check(requirements[column], info);
       td.className = valid ? "green" : "red";
