@@ -169,7 +169,7 @@ function refresh(scope, requirements, distro_data, sort_by=null) {
     "glibc", "glib", "gtk+2", "gtk+3", "GCC", "clang", "python3"
   ] : [
     "kernel", "glibc", "glib", "gtk+2", "gtk+3", "stdc++"
-  ]).filter(name => requirements[name]);
+  ]).filter(name => requirements[name] || name == "kernel");
 
   for (const [i, column] of ["Distribution", "Released", "EOL"].concat(columns).entries()) {
     const th = document.createElement("th");
