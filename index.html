@@ -52,6 +52,9 @@ table tr:nth-child(odd) :is(td, th).green {
 table tr :is(td, th).green {
   background-color: #aaffaa;
 }
+#sort_by {
+  display: none;
+}
 </style>
 <script>
 const DISTROS = ["fedora", "rhel", "opensuse", "suse", "debian", "ubuntu"];
@@ -100,6 +103,7 @@ async function init() {
   const scope = document.getElementById("scope");
   const version_list = document.getElementById("version");
   const eol = document.getElementById("eol");
+  const sort_by = document.getElementById("sort_by")
   const versions = Object.keys(requirements);
   versions.sort((a, b) => b - a);
   for (const version of versions) {
@@ -117,16 +121,31 @@ async function init() {
     option.textContent = text;
     version_list.appendChild(option);
   }
-  scope.addEventListener("change", (event) => {
-    refresh(event.target.value, requirements[version_list.value], distro_data);
-  });
-  version_list.addEventListener("change", (event) => {
-    refresh(scope.value, requirements[event.target.value], distro_data);
-  });
-  eol.addEventListener("change", (event) => {
-    refresh(scope.value, requirements[version_list.value], distro_data);
-  });
-  refresh(scope.value, requirements[version_list.value], distro_data);
+  function do_refresh(event) {
+    const params = new URLSearchParams(location.hash.slice(1));
+    for (const [key, value] of params) {
+      if (key == "scope") scope.value = value;
+      else if (key == "version") version_list.value = value;
+      else if (key == "show_eol") eol.checked = value == "true";
+      else if (key == "sort_by") sort_by.value = value;
+    }
+    refresh(scope.value, requirements[version_list.value], distro_data, sort_by.value);
+  }
+  function listener(event) {
+    let params = {
+      "scope": scope.value,
+      "version": version_list.value,
+      "show_eol": eol.checked,
+    };
+    if (sort_by.value) params["sort_by"] = sort_by.value;
+    location.hash = new URLSearchParams(params).toString();
+  }
+  scope.addEventListener("change", listener);
+  version_list.addEventListener("change", listener);
+  eol.addEventListener("change", listener);
+  sort_by.addEventListener("change", listener);
+  window.addEventListener("popstate", do_refresh);
+  do_refresh(null);
 }
 
 function version(s) {
@@ -197,20 +216,24 @@ function refresh(scope, requirements, distro_data, sort_by=null) {
     "kernel", "glibc", "glib", "gtk+3", "drm", "stdc++"
   ]).filter(name => requirements[name] || name == "kernel" || name == "drm");
 
+  function sort_listener(event) {
+    const sort_by = document.getElementById("sort_by");
+    if (event.target.className == "sorted") {
+      sort_by.value = "";
+    } else {
+      sort_by.value = event.target.textContent;
+    }
+    sort_by.dispatchEvent(new Event("change"));
+  }
+
   for (const [i, column] of ["Distribution", "Released", "EOL"].concat(columns).entries()) {
     const th = document.createElement("th");
     th.textContent = column;
     if (i > 2) {
       if (column == sort_by) {
         th.className = "sorted";
-        th.addEventListener("click", (event) => {
-          refresh(scope, requirements, distro_data);
-        });
-      } else {
-        th.addEventListener("click", (event) => {
-          refresh(scope, requirements, distro_data, column);
-        });
       }
+      th.addEventListener("click", sort_listener);
     }
     matrix_head.appendChild(th);
   }
@@ -285,6 +308,7 @@ dependencies for Firefox
 </select>
 <input type="checkbox" id="eol" name="eol" checked>
 <label for="eol">Show EOLed distributions</label>
+<input type="text" id="sort_by">
 <table>
 <thead>
 <tr id="matrix_head"></tr>
