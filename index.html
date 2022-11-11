@@ -5,13 +5,17 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 <head>
 <title>Firefox Linux compatibility matrix</title>
+<meta charset="utf-8">
 <style>
 table {
-  width: 100%
-  border-collapse: collapse;
-  border-spacing: 2px;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0px;
 }
-table td {
+table :is(th, td) {
+  border: 1px solid #ffffff;
+}
+table td, table tr:nth-child(even) th:nth-child(n+2) {
   background-color: #f9fafb;
   margin: 0;
 }
@@ -25,16 +29,19 @@ table thead {
   position: sticky;
   top: 2px;
 }
-table thead th {
+table thead :is(tr:first-child th, tr:nth-child(2) th:first-child) {
   border-bottom: 2px solid #d4dde4;
 }
-table thead th:nth-child(n+4):hover {
+table thead tr:first-child th:nth-child(n+4):hover {
   background: #ffaa00;
+}
+table thead tr:nth-child(2) th{
+  padding: 3px 6px;
 }
 table thead th.sorted {
   background: #ff0000;
 }
-table tbody th {
+table :is(tbody th, thead tr:nth-child(2) th:first-child) {
   border-right: 2px solid #d4dde4;
 }
 table :is(th, td) {
@@ -206,8 +213,10 @@ function refresh(scope, requirements, distro_data, sort_by=null) {
 
   const show_eol = document.getElementById("eol").checked;
   const matrix_head = document.getElementById("matrix_head");
+  const reqs = document.getElementById("requirements");
   const matrix_body = document.getElementById("matrix_body");
   matrix_head.replaceChildren();
+  reqs.replaceChildren();
   matrix_body.replaceChildren();
 
   const columns = ((scope == "build") ? [
@@ -236,6 +245,13 @@ function refresh(scope, requirements, distro_data, sort_by=null) {
       th.addEventListener("click", sort_listener);
     }
     matrix_head.appendChild(th);
+  }
+
+  for (const [i, column] of ["Distribution", "Released", "EOL"].concat(columns).entries()) {
+    const th = document.createElement("th");
+    const req = requirements[column];
+    th.textContent = req ? `≥ ${req}` : ((i > 2) ? "?" : "");
+    reqs.appendChild(th);
   }
 
   let sorted_distro_data = distro_data;
@@ -312,6 +328,7 @@ dependencies for Firefox
 <table>
 <thead>
 <tr id="matrix_head"></tr>
+<tr id="requirements"></tr>
 </thead>
 <tbody id="matrix_body"></tbody>
 </table>
