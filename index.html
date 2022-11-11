@@ -99,6 +99,7 @@ async function init() {
   const nightly_version = parseInt(firefox_versions["FIREFOX_NIGHTLY"], 10);
   const scope = document.getElementById("scope");
   const version_list = document.getElementById("version");
+  const eol = document.getElementById("eol");
   const versions = Object.keys(requirements);
   versions.sort((a, b) => b - a);
   for (const version of versions) {
@@ -121,6 +122,9 @@ async function init() {
   });
   version_list.addEventListener("change", (event) => {
     refresh(scope.value, requirements[event.target.value], distro_data);
+  });
+  eol.addEventListener("change", (event) => {
+    refresh(scope.value, requirements[version_list.value], distro_data);
   });
   refresh(scope.value, requirements[version_list.value], distro_data);
 }
@@ -181,6 +185,7 @@ function refresh(scope, requirements, distro_data, sort_by=null) {
   const last_month = new Date(now);
   last_month.setDate(0);
 
+  const show_eol = document.getElementById("eol").checked;
   const matrix_head = document.getElementById("matrix_head");
   const matrix_body = document.getElementById("matrix_body");
   matrix_head.replaceChildren();
@@ -223,20 +228,23 @@ function refresh(scope, requirements, distro_data, sort_by=null) {
   }
 
   for (const [distro, data] of sorted_distro_data) {
+    const release = data["release"] || {};
+    const versions = data["versions"] || {};
+
+    let eol = parse_date(release["eol"]);
+    let lts = parse_date(release["lts"]);
+    const is_eol = (lts || eol || now) < last_month;
+    if (is_eol && !show_eol) continue;
+
     const tr = document.createElement("tr");
     const th = document.createElement("th");
     th.textContent = distro;
     tr.appendChild(th);
 
-    const release = data["release"] || {};
-    const versions = data["versions"] || {};
-
     const release_td = document.createElement("td");
     release_td.textContent = format_date(parse_date(release["date"]));
     const eol_td = document.createElement("td");
-    let eol = parse_date(release["eol"]);
-    let lts = parse_date(release["lts"]);
-    if ((lts || eol || now) < last_month) {
+    if (is_eol) {
       eol_td.className = "red";
     }
     if (lts) {
@@ -275,6 +283,8 @@ window.addEventListener("load", () => init(), false);
 dependencies for Firefox
 <select id="version">
 </select>
+<input type="checkbox" id="eol" name="eol" checked>
+<label for="eol">Show EOLed distributions</label>
 <table>
 <thead>
 <tr id="matrix_head"></tr>
