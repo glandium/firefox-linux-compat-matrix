@@ -190,7 +190,7 @@ function format_date(date) {
   if (date == undefined) {
     return "?";
   }
-  return date_formatter.format(date);
+  return date_formatter.format(date).replaceAll(" ", " ");
 }
 
 function parse_date(date) {
@@ -277,7 +277,7 @@ function refresh(scope, requirements, distro_data, sort_by=null) {
 
     const tr = document.createElement("tr");
     const th = document.createElement("th");
-    th.textContent = distro;
+    th.textContent = distro.replaceAll(" ", " ");
     tr.appendChild(th);
 
     const release_td = document.createElement("td");
