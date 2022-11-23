@@ -880,7 +880,7 @@
     },
     "SUSE SLE-15-SP4": {
         "release": {
-            "date": "2022-06",
+            "date": "2022-06"
         },
         "versions": {
             "kernel": "5.14",
