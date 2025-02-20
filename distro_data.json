@@ -1170,7 +1170,7 @@
         "release": {
             "date": "2023-06",
             "eol": "2024-12",
-            "lts": "2027-12",
+            "lts": "2027-12"
         },
         "versions": {
             "kernel": "5.14",
@@ -1186,7 +1186,7 @@
     },
     "SUSE SLE-15-SP6": {
         "release": {
-            "date": "2024-06",
+            "date": "2024-06"
         },
         "versions": {
             "kernel": "6.4",
